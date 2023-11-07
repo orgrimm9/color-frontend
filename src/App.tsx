@@ -39,7 +39,9 @@ function App() {
   }
 
   useEffect(() => {
-    getColor()
+    if(localStorage.getItem('isLoggedIn') === 'true') {
+      getColor()
+    }
   }, [])
 
   if(localStorage.getItem('isLoggedIn') !== 'true') {
