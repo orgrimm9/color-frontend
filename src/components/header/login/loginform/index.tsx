@@ -1,23 +1,20 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
+import CssBaseline from '@mui/material/CssBaseline';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
+import * as React from 'react';
 
 const defaultTheme = createTheme();
 
 export default function SignIn({setUserContext} : {setUserContext : (x : any) => void}) {
+  const [error, setFormError] = React.useState(false);
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -31,6 +28,7 @@ export default function SignIn({setUserContext} : {setUserContext : (x : any) =>
        setUserContext({...jwtDecode(response.data.accessToken), ...{isLoggedIn: true}})
        localStorage.setItem('isLoggedIn', 'true');
     } catch (error) {
+        setFormError(true);
         console.log('Error while login', error)
     }
   };
@@ -82,6 +80,9 @@ export default function SignIn({setUserContext} : {setUserContext : (x : any) =>
             >
               Sign In
             </Button>
+            {error&&<Typography component="p" variant="caption" color="error">
+            Error while log in, please check credentials
+          </Typography>}
           </Box>
         </Box>
       </Container>
