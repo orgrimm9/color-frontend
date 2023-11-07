@@ -1,25 +1,57 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+
+import axios from "axios";
+import "./App.css";
+import ResponsiveAppBar from "./components/header";
+import SignIn from "./components/header/login/loginform";
+
+export type UserContext = {
+  id?: string;
+  iat?: number;
+  exp?: number;
+  isLoggedIn: boolean
+  userName: string;
+  color?: {
+    name: string;
+    code: string;
+  }
+}
 
 function App() {
+  const [userContext, setUserContext] = useState<UserContext>({
+    userName: '',
+    color: {
+      name: '',
+      code: ''
+    },
+    isLoggedIn: false
+  });
+
+  const getColor = async () => {
+    axios.get(`${process.env.REACT_APP_SERVICE_URI as string}/getColor`, {withCredentials: true}).then(res => {
+      setUserContext({
+        userName: res?.data?.userName,
+        isLoggedIn: true,
+        color: res.data.color
+      })
+    })
+  }
+
+  useEffect(() => {
+    getColor()
+  }, [])
+
+  if(localStorage.getItem('isLoggedIn') !== 'true') {
+    return <SignIn setUserContext={setUserContext}/>
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        {userContext.color?.code && <Route path="/dashboard" element={<ResponsiveAppBar setUserContext={setUserContext} userContext={userContext} code={userContext.color?.code}/>}/>}
+      </Routes>
+    </BrowserRouter>
   );
 }
 
